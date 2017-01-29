@@ -1,0 +1,47 @@
+<Project>
+
+  <PropertyGroup>
+
+    <OutputPath>..\..\build\$(Configuration)\$(MSBuildProjectName)</OutputPath>
+
+    <Product>Quartz.NET</Product>
+    <Description>Quartz.NET Scheduling Framework for .NET Platform</Description>
+    <Copyright>Copyright Marko Lahma</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+
+    <Authors>Marko Lahma</Authors>
+    <DefineConstants>$(DefineConstants);LIBLOG_PUBLIC;LIBLOG_PORTABLE</DefineConstants>
+    <WarningsAsErrors>true</WarningsAsErrors>
+
+    <AssemblyOriginatorKeyFile>../../quartz.net.snk</AssemblyOriginatorKeyFile>
+    <SignAssembly>true</SignAssembly>
+    <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
+
+    <PackageId>Quartz</PackageId>
+    <PackageTags>scheduling;tasks;jobs;triggers;scheduler;threading</PackageTags>
+    <PackageProjectUrl>https://www.quartz-scheduler.net/</PackageProjectUrl>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/quartznet/quartznet</RepositoryUrl>
+
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+
+    <VersionPrefix>3.0.0-alpha2</VersionPrefix>
+    <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+
+    <CLSCompliant>true</CLSCompliant>
+    <ComVisible>false</ComVisible>
+
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <DefineConstants>$(DefineConstants);APPDOMAINS;BINARY_SERIALIZATION;CONFIGURATION;HTTPCONTEXT;MAIL;THREAD_APARTMENTSTATE;THREAD_INTERRUPTION;THREAD_PRIORITY;WINDOWS_PROCESS;XML_SCHEMA</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <DefineConstants>$(DefineConstants);APPCONTEXT;ASYNCLOCAL;BUG_7552;NETSTANDARD_DBPROVIDERS</DefineConstants>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+
+</Project>

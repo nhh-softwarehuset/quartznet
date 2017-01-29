@@ -10,8 +10,8 @@ open System.IO
 
 let commitHash = Information.getCurrentHash()
 let configuration = getBuildParamOrDefault "configuration" "Release"
-let projectJsonFiles = !! "src/*/project.json" -- "src/*Web*/project.json"
-let testProjectJsonFiles = !! "src/Quartz.Tests.Integration/project.json" ++ "src/Quartz.Tests.Unit/project.json"
+let projectFiles = !! "src/*/*.csproj" -- "src/*Web*/*.csproj"
+let testProjectFiles = !! "src/Quartz.Tests.Integration/Quartz.Tests.Integration.csproj" ++ "src/Quartz.Tests.Unit/Quartz.Tests.Unit.csproj"
 
 Target "Clean" (fun _ ->
     !! "artifacts" ++ "src/*/bin" ++ "src/*/obj" ++ "test/*/bin" ++ "test/*/obj" ++ "build" ++ "deploy"
@@ -21,13 +21,6 @@ Target "Clean" (fun _ ->
 Target "GenerateAssemblyInfo" (fun _ ->
     CreateCSharpAssemblyInfo "./src/AssemblyInfo.cs"
         [
-            (Attribute.Product("Quarz.NET"))
-            (Attribute.Description("Quartz Scheduling Framework for .NET"))
-            (Attribute.Copyright("Copyright 2001-2016 Marko Lahma"))
-            (Attribute.Trademark("Apache License, Version 2.0"))
-            (Attribute.Company("http://www.quartz-scheduler.net/"))
-            (Attribute.CLSCompliant(true))
-            (Attribute.ComVisible(false))
             (Attribute.Metadata("githash", commitHash))]
 )
 
@@ -40,12 +33,12 @@ Target "Build" (fun _ ->
     let build f = DotNetCli.Build (fun p ->
                 { p with
                     Configuration = configuration
-                    Project = f })    
+                    Project = f })
 
-    projectJsonFiles
+    projectFiles
         |> Seq.iter restore
 
-    projectJsonFiles
+    projectFiles
         |> Seq.iter build
 )
 
@@ -54,7 +47,7 @@ Target "BuildSolutions" (fun _ ->
     let setParams defaults =
             { defaults with
                 Verbosity = Some(Quiet)
-                Targets = ["Build"]
+                Targets = ["Build"; "Pack"]
                 Properties =
                     [
                         "Optimize", "True"
@@ -62,10 +55,8 @@ Target "BuildSolutions" (fun _ ->
                         "Configuration", configuration
                     ]
             }
-    build setParams "./Quartz.sln"
-        |> DoNothing
 
-    build setParams "./Quartz-DotNetCore.sln"
+    build setParams "./Quartz.sln"
         |> DoNothing
 )
 
@@ -77,7 +68,7 @@ Target "Pack" (fun _ ->
                     Project = f
                 })
 
-    !! "src/Quartz/project.json" ++ "src/Quartz.Serialization.Json/project.json"
+    !! "src/Quartz/Quartz.csproj" ++ "src/Quartz.Serialization.Json/Quartz.Serialization.Json.csproj"
         |> Seq.iter pack
 
     !! "src/*/bin/**/*.nupkg"
@@ -85,12 +76,12 @@ Target "Pack" (fun _ ->
 )
 
 Target "Test" (fun _ ->
-        DotNetCli.Test
-            (fun p ->
-                { p with
-                    Project = "src/Quartz.Tests.Unit/project.json"
-                    Configuration = configuration
-                    AdditionalArgs = ["--where \"cat != database && cat != fragile\""] })
+    DotNetCli.Test
+        (fun p ->
+            { p with
+                Project = "src/Quartz.Tests.Unit/Quartz.Tests.Unit.csproj"
+                Configuration = configuration
+                AdditionalArgs = ["--where \"cat != database && cat != fragile\""] })
 )
 
 Target "TestFull" (fun _ ->
@@ -101,7 +92,7 @@ Target "TestFull" (fun _ ->
                         Configuration = configuration
                         AdditionalArgs = ["--where \"cat != fragile\""] })
 
-    testProjectJsonFiles
+    testProjectFiles
         |> Seq.iter test
 )
 
@@ -112,12 +103,12 @@ Target "TestLinux" (fun _ ->
                         Project = f
                         Configuration = configuration
                         AdditionalArgs = ["--where \"cat != fragile && cat != sqlserver && cat != windowstimezoneid\""] })
-                                
-    testProjectJsonFiles
+
+    testProjectFiles
         |>  Seq.iter test
 )
 
-Target "ApiDoc" (fun _ -> 
+Target "ApiDoc" (fun _ ->
 
     let setParams defaults =
             { defaults with
@@ -149,29 +140,28 @@ Target "ApiDoc" (fun _ ->
 
     !! "build/apidoc/**/*.htm" ++ "build/apidoc/**/*.html"
         |> ReplaceInFiles [("@HEADER@", footerContent);("@FOOTER@", headerContent)]
-    
+
 )
 
 "Clean"
   ==> "GenerateAssemblyInfo"
   ==> "Build"
-  =?> ("BuildSolutions", hasBuildParam "buildSolutions")
-  ==> "Test"
+ // ==> "Test"
   ==> "Pack"
 
 
 "Clean"
   ==> "GenerateAssemblyInfo"
-  ==> "ApiDoc"  
+  ==> "ApiDoc"
 
 "Clean"
   ==> "GenerateAssemblyInfo"
   ==> "TestFull"
-  
+
 
 "Clean"
   ==> "GenerateAssemblyInfo"
   ==> "Build"
   ==> "TestLinux"
-  
+
 RunTargetOrDefault "Test"
