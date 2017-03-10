@@ -77,7 +77,7 @@ namespace Quartz.Examples.Example13
             NameValueCollection properties = new NameValueCollection
             {
                 ["quartz.scheduler.instanceName"] = "TestScheduler",
-                ["quartz.scheduler.instanceId"] = "instance_one",
+                ["quartz.scheduler.instanceId"] = Guid.NewGuid().ToString(),
                 ["quartz.threadPool.type"] = "Quartz.Simpl.SimpleThreadPool, Quartz",
                 ["quartz.threadPool.threadCount"] = "5",
                 ["quartz.jobStore.misfireThreshold"] = "60000",
@@ -87,7 +87,7 @@ namespace Quartz.Examples.Example13
                 ["quartz.jobStore.tablePrefix"] = "QRTZ_",
                 ["quartz.jobStore.clustered"] = "true",
                 ["quartz.jobStore.driverDelegateType"] = "Quartz.Impl.AdoJobStore.SqlServerDelegate, Quartz",
-                ["quartz.dataSource.default.connectionString"] = "Server=(local);Database=quartz;User Id=quartznet;Password=quartznet;",
+                ["quartz.dataSource.default.connectionString"] = "Server=.;Database=QuartzJobStore;Integrated Security=SSPI;",
                 ["quartz.dataSource.default.provider"] = "SqlServer-20",
                 ["quartz.serializer.type"] = "json"
             };
@@ -133,21 +133,6 @@ namespace Quartz.Examples.Example13
 
                 count++;
 
-                job = JobBuilder.Create<SimpleRecoveryJob>()
-                    .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
-                    .RequestRecovery() // ask scheduler to re-execute this job if it was in progress when the scheduler went down...
-                    .Build();
-
-                trigger = (ISimpleTrigger) TriggerBuilder.Create()
-                    .WithIdentity("triger_" + count, schedId)
-                    .StartAt(DateBuilder.FutureDate(2, IntervalUnit.Second))
-                    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromSeconds(5)))
-                    .Build();
-
-                log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} and repeat: {trigger.RepeatCount} times, every {trigger.RepeatInterval.TotalSeconds} seconds");
-                await sched.ScheduleJob(job, trigger);
-
-                count++;
 
                 job = JobBuilder.Create<SimpleRecoveryStatefulJob>()
                     .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
@@ -157,43 +142,43 @@ namespace Quartz.Examples.Example13
                 trigger = (ISimpleTrigger) TriggerBuilder.Create()
                     .WithIdentity("triger_" + count, schedId)
                     .StartAt(DateBuilder.FutureDate(1, IntervalUnit.Second))
-                    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromSeconds(3)))
+                    .WithSimpleSchedule(x => x.RepeatForever().WithInterval(TimeSpan.FromSeconds(5)))
                     .Build();
 
                 log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} and repeat: {trigger.RepeatCount} times, every {trigger.RepeatInterval.TotalSeconds} seconds");
                 await sched.ScheduleJob(job, trigger);
 
-                count++;
+                //count++;
 
-                job = JobBuilder.Create<SimpleRecoveryJob>()
-                    .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
-                    .RequestRecovery() // ask scheduler to re-execute this job if it was in progress when the scheduler went down...
-                    .Build();
+                //job = JobBuilder.Create<SimpleRecoveryJob>()
+                //    .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
+                //    .RequestRecovery() // ask scheduler to re-execute this job if it was in progress when the scheduler went down...
+                //    .Build();
 
-                trigger = (ISimpleTrigger) TriggerBuilder.Create()
-                    .WithIdentity("triger_" + count, schedId)
-                    .StartAt(DateBuilder.FutureDate(1, IntervalUnit.Second))
-                    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromSeconds(4)))
-                    .Build();
+                //trigger = (ISimpleTrigger) TriggerBuilder.Create()
+                //    .WithIdentity("triger_" + count, schedId)
+                //    .StartAt(DateBuilder.FutureDate(1, IntervalUnit.Second))
+                //    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromSeconds(4)))
+                //    .Build();
 
-                log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} & repeat: {trigger.RepeatCount}/{trigger.RepeatInterval}");
-                await sched.ScheduleJob(job, trigger);
+                //log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} & repeat: {trigger.RepeatCount}/{trigger.RepeatInterval}");
+                //await sched.ScheduleJob(job, trigger);
 
-                count++;
+                //count++;
 
-                job = JobBuilder.Create<SimpleRecoveryJob>()
-                    .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
-                    .RequestRecovery() // ask scheduler to re-execute this job if it was in progress when the scheduler went down...
-                    .Build();
+                //job = JobBuilder.Create<SimpleRecoveryJob>()
+                //    .WithIdentity("job_" + count, schedId) // put triggers in group named after the cluster node instance just to distinguish (in logging) what was scheduled from where
+                //    .RequestRecovery() // ask scheduler to re-execute this job if it was in progress when the scheduler went down...
+                //    .Build();
 
-                trigger = (ISimpleTrigger) TriggerBuilder.Create()
-                    .WithIdentity("triger_" + count, schedId)
-                    .StartAt(DateBuilder.FutureDate(1, IntervalUnit.Second))
-                    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromMilliseconds(4500)))
-                    .Build();
+                //trigger = (ISimpleTrigger) TriggerBuilder.Create()
+                //    .WithIdentity("triger_" + count, schedId)
+                //    .StartAt(DateBuilder.FutureDate(1, IntervalUnit.Second))
+                //    .WithSimpleSchedule(x => x.WithRepeatCount(20).WithInterval(TimeSpan.FromMilliseconds(4500)))
+                //    .Build();
 
-                log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} & repeat: {trigger.RepeatCount}/{trigger.RepeatInterval}");
-                await sched.ScheduleJob(job, trigger);
+                //log.Info($"{job.Key} will run at: {trigger.GetNextFireTimeUtc()} & repeat: {trigger.RepeatCount}/{trigger.RepeatInterval}");
+                //await sched.ScheduleJob(job, trigger);
             }
 
             // jobs don't start firing until start() has been called...
@@ -227,6 +212,7 @@ namespace Quartz.Examples.Example13
 				}
 			}
 			*/
+            Console.WriteLine("testing");
             ClusterExample example = new ClusterExample();
             return example.Run(clearJobs, scheduleJobs);
         }

@@ -126,6 +126,7 @@
     <Compile Include="NetCoreStubs\ThreadInterruptedException.cs" />
     <Compile Include="NetCoreStubs\ThreadPriority.cs" />
     <Compile Include="NetCoreStubs\TypeFilterLevel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Simpl\DedicatedThreadPool.cs" />
     <Compile Include="Simpl\DefaultDirectoryProvider.cs" />
     <Compile Include="Job\DirectoryScanJob.cs" />

@@ -30,6 +30,7 @@ namespace Quartz.Examples.Example13
     /// </summary>
     /// <author>James House</author>
     /// <author>Marko Lahma (.NET)</author>
+    [DisallowConcurrentExecution]
     public class SimpleRecoveryJob : IJob
     {
         private static readonly ILog log = LogProvider.GetLogger(typeof (SimpleRecoveryJob));
@@ -42,6 +43,8 @@ namespace Quartz.Examples.Example13
         /// </summary>
         public virtual async Task Execute(IJobExecutionContext context)
         {
+            var guid = Guid.NewGuid();
+            Console.WriteLine($"running job! {guid}");
             JobKey jobKey = context.JobDetail.Key;
 
             // if the job is recovering print a message
@@ -53,7 +56,7 @@ namespace Quartz.Examples.Example13
             {
                 log.InfoFormat("SimpleRecoveryJob: {0} starting at {1}", jobKey, DateTime.Now.ToString("r"));
             }
-
+   
             // delay for ten seconds
             await Task.Delay(TimeSpan.FromSeconds(10));
 
@@ -71,6 +74,9 @@ namespace Quartz.Examples.Example13
             data.Put(Count, count);
 
             log.InfoFormat("SimpleRecoveryJob: {0} done at {1}\n Execution #{2}", jobKey, DateTime.Now.ToString("r"), count);
+            Console.WriteLine($"ended job! {guid}");
+
+
         }
     }
 }

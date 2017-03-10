@@ -72,10 +72,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="App.config" />
-    <Compile Include="..\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="example16\AsyncExample.cs" />
     <Compile Include="example16\AsyncJob.cs" />
     <Compile Include="Program.cs">
